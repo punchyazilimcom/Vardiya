@@ -11,7 +11,7 @@ import CrossBranchPanel from './components/CrossBranchPanel';
 import SaveIndicator from './components/SaveIndicator';
 import type { SubeKod } from './types';
 
-type Modal = 'personel' | 'saat' | 'capraz' | 'menu' | null;
+type Modal = 'personel' | 'saat' | 'capraz' | 'menu' | 'uyari' | null;
 
 export default function App() {
   const {
@@ -27,12 +27,14 @@ export default function App() {
     haftaIleri,
     buHafta,
     geceniHaftayiKopyala,
+    haftayiOtomatikDoldur,
     cikis,
   } = useStore();
 
   const [modal, setModal] = useState<Modal>(null);
   const [mesaj, setMesaj] = useState('');
   const [mesgul, setMesgul] = useState(false);
+  const [uyarilar, setUyarilar] = useState<string[]>([]);
   const dosyaRef = useRef<HTMLInputElement>(null);
 
   if (!oturum) return <PinLogin />;
@@ -143,6 +145,29 @@ export default function App() {
     bildir(ok ? 'Geçen hafta kopyalandı.' : 'Geçen haftada veri yok.');
   }
 
+  async function otoDoldur() {
+    setModal(null);
+    if (
+      !confirm(
+        'Bu hafta kurallara göre SIFIRDAN kurulacak (izin günleri ve durumlar korunur). ' +
+          'Geçen haftaya göre açılış↔kapanış döndürülür, eksik kapsam FULL ile tamamlanır. Devam edilsin mi?',
+      )
+    )
+      return;
+    setMesgul(true);
+    try {
+      const u = await haftayiOtomatikDoldur();
+      setUyarilar(u);
+      if (u.length) setModal('uyari');
+      else bildir('Hafta otomatik dolduruldu — tüm kurallar tuttu ✓');
+    } catch (e) {
+      console.error(e);
+      bildir('Otomatik doldurma başarısız.');
+    } finally {
+      setMesgul(false);
+    }
+  }
+
   return (
     <div style={s.app}>
       <header style={s.bar}>
@@ -198,6 +223,16 @@ export default function App() {
             ▶
           </button>
         </div>
+
+        {/* Hızlı eylemler */}
+        <div style={s.eylemler}>
+          <button className="btn vurgu" style={{ flex: 1 }} onClick={otoDoldur}>
+            ✨ Otomatik Doldur
+          </button>
+          <button className="btn" style={{ flex: 1 }} onClick={kopyala}>
+            ⧉ Geçen Haftayı Kopyala
+          </button>
+        </div>
       </header>
 
       <main style={s.icerik}>
@@ -223,10 +258,11 @@ export default function App() {
             </div>
 
             <div style={s.menuGrid}>
+              <button className="btn vurgu" onClick={otoDoldur}>✨ Otomatik Doldur</button>
+              <button className="btn" onClick={kopyala}>⧉ Geçen Haftayı Kopyala</button>
               <button className="btn" onClick={() => setModal('personel')}>👥 Personel</button>
               <button className="btn" onClick={() => setModal('saat')}>⏱ Saat Ayarları</button>
               <button className="btn" onClick={() => setModal('capraz')}>↗ Başka Şubeden Gelenler</button>
-              <button className="btn" onClick={kopyala}>⧉ Geçen Haftayı Kopyala</button>
             </div>
 
             <div style={s.menuBaslik}>PDF</div>
@@ -245,6 +281,31 @@ export default function App() {
             <button className="btn tehlike" style={{ width: '100%', marginTop: 16 }} onClick={cikis}>
               Çıkış Yap
             </button>
+          </div>
+        </div>
+      )}
+
+      {modal === 'uyari' && (
+        <div className="ortu" onClick={() => setModal(null)}>
+          <div className="sayfa" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ fontSize: 17 }}>Hafta dolduruldu · Hatırlatmalar</h3>
+              <button className="btn kucuk" onClick={() => setModal(null)}>
+                Tamam
+              </button>
+            </div>
+            <p style={{ color: '#888', fontSize: 12, marginTop: 6 }}>
+              Vardiyalar kurallara göre kuruldu. Aşağıdaki noktaları kontrol et (genelde personel
+              eksikliği veya izin çakışması):
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
+              {uyarilar.map((u, i) => (
+                <div key={i} style={s.uyariSatir}>
+                  <span style={{ color: '#F4DF16' }}>⚠</span>
+                  <span style={{ fontSize: 13 }}>{u}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -300,6 +361,16 @@ const s: Record<string, React.CSSProperties> = {
   },
   subeAktif: { background: '#F4DF16', color: '#000', borderColor: '#F4DF16' },
   hafta: { display: 'flex', alignItems: 'center', gap: 8 },
+  eylemler: { display: 'flex', gap: 8 },
+  uyariSatir: {
+    display: 'flex',
+    gap: 8,
+    alignItems: 'flex-start',
+    padding: '9px 11px',
+    background: '#1a1808',
+    border: '1px solid #3a3410',
+    borderRadius: 8,
+  },
   aralik: { flex: 1, textAlign: 'center', fontSize: 13, color: '#ddd' },
   icerik: { flex: 1, padding: '12px 12px 4px' },
   toast: {

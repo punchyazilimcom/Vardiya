@@ -3,7 +3,8 @@ import { useStore } from '../store';
 import { GUNLER } from '../constants';
 import { gunTarihleri, tarihEtiket, haftaAralik } from '../lib/week';
 import { hucreGorunum } from '../lib/cell';
-import { gunUyarilari, personelOzet } from '../lib/analiz';
+import { personelOzet } from '../lib/analiz';
+import { gunKapsam } from '../lib/otomatik';
 import type { Gun, Hucre, Personel } from '../types';
 import CellEditor from './CellEditor';
 
@@ -16,7 +17,10 @@ export default function ShiftTable() {
   const ustalar = aktifler.filter((p) => p.rol === 'usta');
   const tezgahlar = aktifler.filter((p) => p.rol === 'tezgahtar');
   const gunler = gunTarihleri(aktifTarih);
-  const uyarilar = useMemo(() => gunUyarilari(hafta, aktifler), [hafta, aktifler]);
+  const uyarilar = useMemo(
+    () => gunKapsam(aktifSube, hafta, aktifler),
+    [aktifSube, hafta, aktifler],
+  );
   const a = haftaAralik(aktifTarih);
 
   function hucreTik(p: Personel, gun: Gun) {
@@ -99,21 +103,13 @@ export default function ShiftTable() {
             <th style={{ ...st.kose }}>PERSONEL</th>
             {GUNLER.map((g, i) => {
               const u = uyarilar[g.kod];
-              const uyar = u.acilisUstaYok || u.kapanisTezgahYok;
+              const uyar = u.eksikler.length > 0;
               return (
                 <th key={g.kod} style={st.gunBaslik}>
                   <div style={st.gunAd}>
                     {g.ad}
                     {uyar && (
-                      <span
-                        style={st.uyariNokta}
-                        title={[
-                          u.acilisUstaYok ? 'Açılışta usta yok' : '',
-                          u.kapanisTezgahYok ? 'Kapanışta tezgahtar yok' : '',
-                        ]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      >
+                      <span style={st.uyariNokta} title={u.eksikler.join(' · ')}>
                         ⚠
                       </span>
                     )}

@@ -13,6 +13,7 @@ import type {
 import { SUBELER } from './constants';
 import { haftaAralik, haftaKaydir } from './lib/week';
 import * as repo from './lib/repo';
+import { otomatikDoldur as motorDoldur } from './lib/otomatik';
 import { ensureAuth } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
 
@@ -38,6 +39,7 @@ interface State {
   hucreYaz: (personelId: string, gun: Gun, hucre: Hucre) => void;
   satirAlanYaz: (personelId: string, alan: 'izinGunu' | 'not', deger: string) => void;
   geceniHaftayiKopyala: () => Promise<boolean>;
+  haftayiOtomatikDoldur: () => Promise<string[]>;
 
   kaydetOnayar: (o: SubeOnayar) => Promise<void>;
   kaydetPersonel: (p: Personel) => Promise<void>;
@@ -215,6 +217,31 @@ export const useStore = create<State>((set, get) => {
       });
       set({ kayitDurumu: 'kaydedildi' });
       return true;
+    },
+
+    haftayiOtomatikDoldur: async () => {
+      const { aktifSube, aktifTarih, personeller, hafta, onayar } = get();
+      const oncekiIso = haftaAralik(haftaKaydir(aktifTarih, -1)).anahtar;
+      const onceki = await repo.getHafta(aktifSube, oncekiIso);
+      const sonuc = motorDoldur({
+        sube: aktifSube,
+        tarih: aktifTarih,
+        personeller: personeller.filter((p) => p.aktif),
+        mevcut: hafta,
+        onceki,
+        onayar,
+      });
+      set({ hafta: sonuc.hafta, kayitDurumu: 'kaydediliyor' });
+      await repo.kaydetHafta(aktifSube, haftaAralik(aktifTarih).anahtar, {
+        ...sonuc.hafta,
+        guncelleyen: get().oturum?.yetki ?? 'patron',
+        guncelTarih: new Date().toISOString(),
+      });
+      set({ kayitDurumu: 'kaydedildi' });
+      setTimeout(() => {
+        if (get().kayitDurumu === 'kaydedildi') set({ kayitDurumu: 'idle' });
+      }, 1800);
+      return sonuc.uyarilar;
     },
 
     kaydetOnayar: async (o) => {
