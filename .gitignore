@@ -17,3 +17,6 @@ build/icon.*
 
 # TS build info
 *.tsbuildinfo
+
+# Firebase deploy cache
+.firebase/
