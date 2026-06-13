@@ -104,6 +104,28 @@ firebase deploy --only hosting
 > önbellekleme ile birlikte gelir. Build her güncellendiğinde `firebase deploy
 > --only hosting` tekrar çalıştırılır.
 
+## 5c) Bilgisayarsız otomatik deploy (GitHub Actions — telefondan)
+
+Bilgisayarın yoksa: kod GitHub'a her push edildiğinde sunucuda build alınıp
+Firebase Hosting'e + Firestore kurallarına otomatik yayınlanır
+(`.github/workflows/deploy.yml`). Tek seferlik tek bir ayar gerekir — hepsi
+telefon tarayıcısından yapılabilir:
+
+1. **Servis hesabı anahtarı al:** Firebase Console → ⚙ Proje ayarları →
+   **Servis hesapları** → **Yeni özel anahtar oluştur**. İnen `.json` dosyasını
+   aç, **tüm içeriğini** kopyala.
+2. **GitHub'a secret ekle:** `github.com/punchyazilimcom/Vardiya` → **Settings**
+   → **Secrets and variables → Actions** → **New repository secret**.
+   - Name: `FIREBASE_SERVICE_ACCOUNT`
+   - Secret: (1. adımdaki JSON'un tamamı)
+3. **Actions** sekmesi → "Deploy" workflow → **Run workflow** (ya da herhangi bir
+   push). Yeşil tamamlanınca site canlıdır:
+   - `https://vardiya-9b064.web.app`
+
+> Bu workflow `main` ve geliştirme dalına push olunca da otomatik çalışır.
+> Konsolda **Anonymous** girişin açık ve **Firestore database**'in oluşturulmuş
+> olması gerekir (bkz. bölüm 2 ve aşağıdaki not).
+
 ## 6) Android (imzalı APK)
 
 İlk kurulum (bir kez):

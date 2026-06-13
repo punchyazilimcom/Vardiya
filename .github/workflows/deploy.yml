@@ -1,0 +1,46 @@
+name: Deploy (Firebase Hosting + Firestore rules)
+
+# Bilgisayar gerektirmez: push olunca GitHub sunucusunda build alınır ve
+# Firebase Hosting'e + Firestore kurallarına yayınlanır.
+# Gerekli tek ayar: repo Settings → Secrets → Actions → FIREBASE_SERVICE_ACCOUNT
+# (Firebase Console → Proje ayarları → Servis hesapları → Yeni özel anahtar
+#  ile inen JSON dosyasının TÜM içeriği).
+
+on:
+  push:
+    branches:
+      - main
+      - claude/basak-shift-management-e9qwxm
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Bağımlılıklar
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Firebase'e yayınla
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret tanımlı değil. KURULUM.md bölüm 5c'ye bakın."
+            exit 1
+          fi
+          printf '%s' "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx firebase-tools@13 deploy \
+            --only hosting,firestore:rules \
+            --project vardiya-9b064 \
+            --non-interactive
