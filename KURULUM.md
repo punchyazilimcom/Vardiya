@@ -6,7 +6,7 @@ Başak Kır Pidesi 4 şube haftalık vardiya yönetimi. Tek kod tabanı; **web**
 - **Stack:** React 18 + Vite + TypeScript + Firebase (Firestore + Auth)
 - **Masaüstü:** Electron + electron-builder (NSIS)
 - **Mobil:** Capacitor (Android), `appId: tr.com.basak.vardiya`
-- **Firebase projesi:** `basak-app-e7a0c` (region `europe-west1`)
+- **Firebase projesi:** `vardiya-9b064` (region `europe-west1`)
 - Tüm vardiya verisi Firestore'da **`vardiya/`** ad alanı altında tutulur — diğer modüllere dokunmaz.
 
 ---
@@ -24,16 +24,15 @@ npm install
 
 ## 2) Firebase yapılandırması (nereye?)
 
-1. `.env.example` dosyasını `.env` olarak kopyalayın:
-   ```bash
-   cp .env.example .env
-   ```
-2. Firebase Console → **Proje Ayarları → Genel → Web App → SDK setup** altındaki
-   değerleri `.env` içine yazın (`VITE_FIREBASE_*`).
-3. Firebase Console → **Authentication → Sign-in method** içinde **Anonymous**
+> Gerçek `vardiya-9b064` web config'i `src/firebase.ts` içine **gömülüdür**;
+> bu yüzden `npm run dev`/build doğrudan çalışır, `.env` zorunlu değildir.
+> Başka bir projeye taşımak isterseniz `.env` ile override edebilirsiniz
+> (`cp .env.example .env`).
+
+1. Firebase Console → **Authentication → Sign-in method** içinde **Anonymous**
    girişini etkinleştirin (uygulama anonim giriş kullanır; PIN rol kontrolü
-   istemci tarafındadır).
-4. Firestore kuralları için `firestore.rules` dosyasını deploy edin:
+   istemci tarafındadır). **Bu adım zorunludur** — yoksa veri okunup yazılamaz.
+2. Firestore kuralları için `firestore.rules` dosyasını deploy edin:
    ```bash
    firebase deploy --only firestore:rules
    ```
@@ -44,7 +43,7 @@ npm install
 
 ## 3) Seed verisi (4 şube ön ayarları + örnek hafta)
 
-`.env` dolu olmalı. Sonra:
+Config gömülü olduğu için doğrudan çalışır (Anonymous giriş açık olmalı):
 
 ```bash
 npm run seed
@@ -82,7 +81,7 @@ göster" açık olsun.)
 ## 5b) Firebase Hosting (hızlı ücretsiz canlı link)
 
 Hostinger yerine (veya ön izleme için) tek komutla canlı yayın. Proje
-`.firebaserc` içinde `basak-app-e7a0c` olarak ayarlıdır.
+`.firebaserc` içinde `vardiya-9b064` olarak ayarlıdır.
 
 İlk kez (bir bilgisayarda):
 ```bash
@@ -98,8 +97,8 @@ firebase deploy --only hosting
 ```
 
 Çıkan canlı adres:
-- `https://basak-app-e7a0c.web.app`
-- `https://basak-app-e7a0c.firebaseapp.com`
+- `https://vardiya-9b064.web.app`
+- `https://vardiya-9b064.firebaseapp.com`
 
 > `firebase.json` SPA fallback (tüm yollar → `index.html`) ve statik varlık
 > önbellekleme ile birlikte gelir. Build her güncellendiğinde `firebase deploy

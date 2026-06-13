@@ -40,17 +40,18 @@ envYukle();
 
 const NS = process.env.VITE_VARDIYA_NAMESPACE || 'vardiya';
 
+// Gerçek değerler varsayılan olarak gömülüdür; .env varsa override eder.
 const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
+  apiKey: process.env.VITE_FIREBASE_API_KEY || 'AIzaSyCO3uqO0Eo0qExmM3uCjJFjMd-NSJqEm-k',
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || 'vardiya-9b064.firebaseapp.com',
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || 'vardiya-9b064',
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || 'vardiya-9b064.firebasestorage.app',
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '716599746954',
+  appId: process.env.VITE_FIREBASE_APP_ID || '1:716599746954:web:afaf6f821592d0f68aa873',
 };
 
 if (!firebaseConfig.projectId || firebaseConfig.apiKey?.includes('XXXX')) {
-  console.error('HATA: .env içindeki Firebase değerleri doldurulmamış görünüyor.');
+  console.error('HATA: Firebase yapılandırması geçersiz görünüyor.');
   process.exit(1);
 }
 
