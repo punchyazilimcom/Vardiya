@@ -40,7 +40,16 @@ export default function PersonnelManager({ onKapat }: Props) {
 
   async function kaydet() {
     if (!duzenle || !duzenle.ad.trim()) return;
-    await kaydetPersonel({ ...duzenle, ad: duzenle.ad.trim() });
+    // Firestore undefined kabul etmez → boş string'e indir
+    await kaydetPersonel({
+      ...duzenle,
+      ad: duzenle.ad.trim(),
+      telefon: duzenle.telefon ?? '',
+      iban: duzenle.iban ?? '',
+      iseGiris: duzenle.iseGiris ?? '',
+      tcKimlik: duzenle.tcKimlik ?? '',
+      dogumTarihi: duzenle.dogumTarihi ?? '',
+    });
     setDuzenle(null);
     setYeni(false);
   }
@@ -168,6 +177,59 @@ export default function PersonnelManager({ onKapat }: Props) {
                   value={duzenle.not}
                   onChange={(e) => setDuzenle({ ...duzenle, not: e.target.value })}
                 />
+              </div>
+            </div>
+            <div style={{ borderTop: '1px solid #222', paddingTop: 12 }}>
+              <div style={s.blokBaslik}>ÖZLÜK BİLGİLERİ</div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Telefon</label>
+                  <input
+                    className="giris mono"
+                    inputMode="tel"
+                    placeholder="05__ ___ __ __"
+                    value={duzenle.telefon ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, telefon: e.target.value })}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">İşe Giriş</label>
+                  <input
+                    className="giris"
+                    type="date"
+                    value={duzenle.iseGiris ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, iseGiris: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <label className="etiket">IBAN</label>
+                <input
+                  className="giris mono"
+                  placeholder="TR__ ____ ____ ____ ____ ____ __"
+                  value={duzenle.iban ?? ''}
+                  onChange={(e) => setDuzenle({ ...duzenle, iban: e.target.value })}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">T.C. Kimlik</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    value={duzenle.tcKimlik ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, tcKimlik: e.target.value })}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Doğum Tarihi</label>
+                  <input
+                    className="giris"
+                    type="date"
+                    value={duzenle.dogumTarihi ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, dogumTarihi: e.target.value })}
+                  />
+                </div>
               </div>
             </div>
             <label style={s.checkbox}>

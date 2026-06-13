@@ -42,6 +42,12 @@ export interface Personel {
   aktif: boolean;
   izinGunu: string; // örn "Pazartesi" veya "Salı, Çarşamba"
   not: string;
+  // Özlük bilgileri (opsiyonel)
+  telefon?: string;
+  iban?: string;
+  iseGiris?: string; // ISO tarih "2024-03-01"
+  tcKimlik?: string;
+  dogumTarihi?: string; // ISO tarih
 }
 
 // ---- Saat ön ayarları ----

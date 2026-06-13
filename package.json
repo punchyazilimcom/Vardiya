@@ -11,6 +11,7 @@
     "build": "tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview",
     "seed": "tsx scripts/seed.ts",
+    "seed:personel": "tsx scripts/seed-personel.ts",
     "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env ELECTRON_DEV=1 electron electron/main.cjs\"",
     "electron:build": "npm run build && electron-builder --win nsis",
     "cap:sync": "npm run build && cap sync android",
@@ -38,6 +39,7 @@
     "cross-env": "^7.0.3",
     "electron": "^31.3.1",
     "electron-builder": "^24.13.3",
+    "firebase-admin": "^14.0.0",
     "tsx": "^4.16.5",
     "typescript": "^5.5.4",
     "vite": "^5.4.1",
@@ -58,7 +60,9 @@
       "target": [
         {
           "target": "nsis",
-          "arch": ["x64"]
+          "arch": [
+            "x64"
+          ]
         }
       ]
     },
