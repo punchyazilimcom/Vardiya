@@ -79,6 +79,32 @@ npm run build
 `index.html`'e düşer. (Dosya gizli olduğundan FTP istemcinizde "gizli dosyaları
 göster" açık olsun.)
 
+## 5b) Firebase Hosting (hızlı ücretsiz canlı link)
+
+Hostinger yerine (veya ön izleme için) tek komutla canlı yayın. Proje
+`.firebaserc` içinde `basak-app-e7a0c` olarak ayarlıdır.
+
+İlk kez (bir bilgisayarda):
+```bash
+npm i -g firebase-tools     # yoksa
+firebase login
+```
+
+Yayınla:
+```bash
+npm run build
+firebase deploy --only hosting
+# veya kurallarla birlikte:  firebase deploy --only hosting,firestore:rules
+```
+
+Çıkan canlı adres:
+- `https://basak-app-e7a0c.web.app`
+- `https://basak-app-e7a0c.firebaseapp.com`
+
+> `firebase.json` SPA fallback (tüm yollar → `index.html`) ve statik varlık
+> önbellekleme ile birlikte gelir. Build her güncellendiğinde `firebase deploy
+> --only hosting` tekrar çalıştırılır.
+
 ## 6) Android (imzalı APK)
 
 İlk kurulum (bir kez):
