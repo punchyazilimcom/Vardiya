@@ -1,0 +1,74 @@
+{
+  "name": "basak-vardiya",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Başak Kır Pidesi — Haftalık Vardiya Yönetimi (4 şube)",
+  "author": "PUNCHYAZILIM",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit -p tsconfig.json && vite build",
+    "preview": "vite preview",
+    "seed": "tsx scripts/seed.ts",
+    "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env ELECTRON_DEV=1 electron electron/main.cjs\"",
+    "electron:build": "npm run build && electron-builder --win nsis",
+    "cap:sync": "npm run build && cap sync android",
+    "cap:open": "cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2",
+    "@capacitor/filesystem": "^6.0.1",
+    "@capacitor/share": "^6.0.2",
+    "firebase": "^10.12.5",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "xlsx": "^0.18.5",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "tsx": "^4.16.5",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.1",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "tr.com.basak.vardiya",
+    "productName": "Basak Vardiya",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Başak Vardiya"
+    }
+  }
+}
