@@ -5,7 +5,7 @@
  * bağımsızdır. Kaynak: PERSONELLER.xlsx (PERSONEL BİLGİ KAYIT) — güncel/final
  * liste. Eski seed'deki şube değiştiren kişiler yeni şubelerine taşındı,
  * işten ayrılanlar listeden çıkarıldı. İzin günleri, eski vardiya
- * listesinden ad eşleşmesiyle (aynı şube + ad) eklendi.
+ * listesinden ad eşleşmesiyle eklendi (şube/ad değişen kişiler onaylı).
  *
  * Görev eşlemesi: İMALAT → usta, TEZGAH → tezgahtar, OFİS → tezgahtar (not: OFİS).
  *
@@ -62,7 +62,7 @@ const VERI: Record<string, Kisi[]> = {
     { ad: 'MEHMET SARI', rol: 'usta', telefon: '538 845 15 91', iban: 'TR38 0006 2000 5330 0006 6481 77', tcKimlik: '11809049428', iseGiris: '2024-10-02' },
     { ad: 'ALPARSLAN', rol: 'usta', telefon: '501 087 5906', iban: 'TR34 0006 2000 5300 0006 6400 19', tcKimlik: '10090346452', iseGiris: '2025-02-28' },
     { ad: 'KEFAYET', rol: 'usta', telefon: '530 600 0686' },
-    { ad: 'HALİL İBRAHİM KIZILIRMAK', rol: 'tezgahtar', not: 'OFİS', telefon: '543 478 0640', tcKimlik: '28280097848', iseGiris: '2025-01-28' },
+    { ad: 'HALİL İBRAHİM KIZILIRMAK', rol: 'tezgahtar', izinGunu: 'Pazar', not: 'OFİS', telefon: '543 478 0640', tcKimlik: '28280097848', iseGiris: '2025-01-28' },
     { ad: 'SEVDE', rol: 'tezgahtar', not: 'IBAN sahibi: ÖMER KARAKURT', telefon: '507 963 9114', iban: 'TR3300 0100 1692 7142 1563 5001', tcKimlik: '13165945420', iseGiris: '2025-12-27' },
     { ad: 'MELEK ÖZDEMİR', rol: 'tezgahtar', izinGunu: 'Pazar', telefon: '545 201 86 84', tcKimlik: '19012933176', iseGiris: '2025-09-22' },
     { ad: 'ZARİFE ŞEVVAL DAĞ', rol: 'tezgahtar', izinGunu: 'Perşembe', telefon: '5344534920', iban: 'TR 6500 0100 9010 55087290 5001', tcKimlik: '12208273544', iseGiris: '2026-02-01' },
@@ -92,7 +92,7 @@ const VERI: Record<string, Kisi[]> = {
     { ad: 'AZİZ', rol: 'usta', telefon: '531 612 6289', iban: 'TR75 0006 2000 6820 0006 8744 25', tcKimlik: '10150325366', iseGiris: '2025-11-20' },
     { ad: 'ERKAN BATUR', rol: 'usta', telefon: '555 037 2610', iban: 'TR20 0001 0014 2792 0191 7950 01', tcKimlik: '69925103500', iseGiris: '2024-10-04' },
     { ad: 'NEZİRE ÜNVER (İNCİ)', rol: 'tezgahtar', izinGunu: 'Salı', telefon: '546 767 0735', iban: 'TR97 0001 0012 2595 3918 2450 02', tcKimlik: '62779239050', iseGiris: '2025-12-08' },
-    { ad: 'YEŞİM DAĞDELEN', rol: 'tezgahtar', telefon: '545 687 4142', iban: 'TR72 0011 1000 0000 0050 2738 27', tcKimlik: '36286753224' },
+    { ad: 'YEŞİM DAĞDELEN', rol: 'tezgahtar', izinGunu: 'Pazartesi', not: 'Sabit sabahçı', telefon: '545 687 4142', iban: 'TR72 0011 1000 0000 0050 2738 27', tcKimlik: '36286753224' },
     { ad: 'İLAYDA YILDIZ', rol: 'tezgahtar', telefon: '542 490 4658', iban: 'TR74 0011 1000 0000 0161 3888 43', tcKimlik: '10027081784' },
     { ad: 'KADRİ EREN YILMAZ', rol: 'tezgahtar', iban: 'TR 1000 0100 9010 0242 0280 5001', tcKimlik: '15265173932', iseGiris: '2026-02-06' },
   ],
