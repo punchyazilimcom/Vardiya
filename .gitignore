@@ -20,3 +20,7 @@ build/icon.*
 
 # Firebase deploy cache
 .firebase/
+
+# Örnek/üretilen Excel çıktıları
+vardiya_ornek.xlsx
+vardiya_*.xlsx
