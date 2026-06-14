@@ -37,28 +37,57 @@ export const auth: Auth = getAuth(app);
 
 let authReady: Promise<void> | null = null;
 
+// Teşhis: anonim giriş durumu (UI'da gösterilir).
+export const authDurum: { uid: string | null; hata: string | null } = {
+  uid: null,
+  hata: null,
+};
+
 // Anonim giriş — Firestore kuralları kimliği doğrulanmış istemci ister.
-// Promise YALNIZCA currentUser hazır olduğunda (token alınınca) çözülür; böylece
-// dinleyiciler kimlik gelmeden kurulup "permission-denied" ile ölmez.
+// currentUser hazır olunca çözülür; hata/askıda kalma durumunda da (zaman aşımı)
+// çözülür ki UI kilitlenmesin ve teşhis görünsün.
 export function ensureAuth(): Promise<void> {
   if (!authReady) {
     authReady = new Promise<void>((resolve) => {
-      // Zaten oturum varsa hemen
-      if (auth.currentUser) return resolve();
+      let bitti = false;
+      const tamam = () => {
+        if (bitti) return;
+        bitti = true;
+        resolve();
+      };
+      if (auth.currentUser) {
+        authDurum.uid = auth.currentUser.uid;
+        return tamam();
+      }
       const off = onAuthStateChanged(auth, (user) => {
         if (user) {
+          authDurum.uid = user.uid;
+          authDurum.hata = null;
           off();
-          resolve();
+          tamam();
         }
       });
       signInAnonymously(auth).catch((err) => {
-        console.warn('Anonim giriş başarısız (offline olabilir):', err?.message);
+        authDurum.hata = err?.code || err?.message || 'bilinmeyen-hata';
+        console.warn('Anonim giriş başarısız:', err?.code, err?.message);
         off();
-        resolve(); // önbellekten okumaya devam edilebilsin
+        tamam();
       });
+      // Askıda kalmaya karşı zaman aşımı
+      setTimeout(() => {
+        if (!auth.currentUser && !authDurum.hata) authDurum.hata = 'zaman-asimi (8sn)';
+        tamam();
+      }, 8000);
     });
   }
   return authReady;
+}
+
+// Girişin gerçekten tamamlanmasını bekler (yeniden bağlanma için).
+export function authYenidenDene(): Promise<void> {
+  authReady = null;
+  authDurum.hata = null;
+  return ensureAuth();
 }
 
 // Analytics yalnızca destekli web ortamında (Electron/Capacitor'da atlanır).

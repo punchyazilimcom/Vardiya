@@ -14,7 +14,7 @@ import { SUBELER } from './constants';
 import { haftaAralik, haftaKaydir } from './lib/week';
 import * as repo from './lib/repo';
 import { otomatikDoldur as motorDoldur } from './lib/otomatik';
-import { ensureAuth, auth } from './firebase';
+import { ensureAuth, authYenidenDene, authDurum } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
 
 export type KayitDurumu = 'idle' | 'kaydediliyor' | 'kaydedildi' | 'hata';
@@ -91,7 +91,10 @@ export const useStore = create<State>((set, get) => {
 
     ensureAuth().then(() => {
       if (nesil !== aboneNesil) return; // bu arada şube/hafta değişti
-      set({ taniUid: auth.currentUser?.uid?.slice(0, 8) ?? null });
+      set({
+        taniUid: authDurum.uid?.slice(0, 8) ?? null,
+        taniHata: authDurum.hata ? `giriş: ${authDurum.hata}` : null,
+      });
       unsubPersonel = repo.dinlePersonel(
         aktifSube,
         (liste) => {
@@ -206,7 +209,7 @@ export const useStore = create<State>((set, get) => {
     },
     yenidenBaglan: () => {
       yenidenDeneme = 0;
-      aboneOl();
+      authYenidenDene().finally(() => aboneOl());
     },
 
     hucreYaz: (personelId, gun, hucre) => {
