@@ -34,12 +34,17 @@ const haftaDoc = (sube: SubeKod, iso: string) =>
 export function dinlePersonel(
   sube: SubeKod,
   cb: (liste: Personel[]) => void,
+  onError?: (e: Error) => void,
 ): Unsubscribe {
-  return onSnapshot(personelCol(sube), (snap) => {
-    const liste = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Personel, 'id'>) }));
-    liste.sort((a, b) => a.sira - b.sira);
-    cb(liste);
-  });
+  return onSnapshot(
+    personelCol(sube),
+    (snap) => {
+      const liste = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Personel, 'id'>) }));
+      liste.sort((a, b) => a.sira - b.sira);
+      cb(liste);
+    },
+    (e) => onError?.(e),
+  );
 }
 
 export async function getPersonel(sube: SubeKod): Promise<Personel[]> {
@@ -74,11 +79,16 @@ export async function siraGuncelle(
 export function dinleOnayar(
   sube: SubeKod,
   cb: (o: SubeOnayar) => void,
+  onError?: (e: Error) => void,
 ): Unsubscribe {
-  return onSnapshot(onayarDoc(sube), (snap) => {
-    if (snap.exists()) cb(snap.data() as SubeOnayar);
-    else cb(varsayilanOnayar(sube));
-  });
+  return onSnapshot(
+    onayarDoc(sube),
+    (snap) => {
+      if (snap.exists()) cb(snap.data() as SubeOnayar);
+      else cb(varsayilanOnayar(sube));
+    },
+    (e) => onError?.(e),
+  );
 }
 
 export async function getOnayar(sube: SubeKod): Promise<SubeOnayar> {
@@ -101,10 +111,15 @@ export function dinleHafta(
   sube: SubeKod,
   iso: string,
   cb: (h: Hafta | null) => void,
+  onError?: (e: Error) => void,
 ): Unsubscribe {
-  return onSnapshot(haftaDoc(sube, iso), (snap) => {
-    cb(snap.exists() ? (snap.data() as Hafta) : null);
-  });
+  return onSnapshot(
+    haftaDoc(sube, iso),
+    (snap) => {
+      cb(snap.exists() ? (snap.data() as Hafta) : null);
+    },
+    (e) => onError?.(e),
+  );
 }
 
 export async function getHafta(sube: SubeKod, iso: string): Promise<Hafta | null> {

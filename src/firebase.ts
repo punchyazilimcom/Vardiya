@@ -5,7 +5,7 @@ import {
   persistentMultipleTabManager,
   type Firestore,
 } from 'firebase/firestore';
-import { getAuth, signInAnonymously, type Auth } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged, type Auth } from 'firebase/auth';
 
 // Firebase web yapılandırması. Web config istemciye gömülür ve gizli değildir;
 // güvenlik Firestore kuralları + Auth ile sağlanır. Bu yüzden gerçek değerleri
@@ -36,15 +36,25 @@ export const auth: Auth = getAuth(app);
 let authReady: Promise<void> | null = null;
 
 // Anonim giriş — Firestore kuralları kimliği doğrulanmış istemci ister.
+// Promise YALNIZCA currentUser hazır olduğunda (token alınınca) çözülür; böylece
+// dinleyiciler kimlik gelmeden kurulup "permission-denied" ile ölmez.
 export function ensureAuth(): Promise<void> {
   if (!authReady) {
-    authReady = signInAnonymously(auth)
-      .then(() => undefined)
-      .catch((err) => {
-        // Offline iken anonim giriş başarısız olabilir; önbellekten okumaya
-        // devam edilebilmesi için hatayı yutuyoruz.
-        console.warn('Anonim giriş başarısız (offline olabilir):', err?.message);
+    authReady = new Promise<void>((resolve) => {
+      // Zaten oturum varsa hemen
+      if (auth.currentUser) return resolve();
+      const off = onAuthStateChanged(auth, (user) => {
+        if (user) {
+          off();
+          resolve();
+        }
       });
+      signInAnonymously(auth).catch((err) => {
+        console.warn('Anonim giriş başarısız (offline olabilir):', err?.message);
+        off();
+        resolve(); // önbellekten okumaya devam edilebilsin
+      });
+    });
   }
   return authReady;
 }

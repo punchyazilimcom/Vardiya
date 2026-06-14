@@ -52,6 +52,8 @@ let unsubOnayar: Unsubscribe | null = null;
 let unsubHafta: Unsubscribe | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let bekleyenHafta: { sube: SubeKod; iso: string } | null = null;
+let aboneNesil = 0; // her aboneOl çağrısı için artan kuşak
+let yenidenDeneme = 0; // hata sonrası yeniden bağlanma sayacı
 
 function temizleAbonelikler() {
   unsubPersonel?.();
@@ -62,23 +64,46 @@ function temizleAbonelikler() {
 
 export const useStore = create<State>((set, get) => {
   // Aktif şube + hafta için Firestore aboneliklerini kurar.
+  // Önce anonim giriş beklenir (dinleyiciler kimlik gelmeden kurulup
+  // "permission-denied" ile ölmesin); hata olursa kimliği bekleyip yeniden bağlanır.
   function aboneOl() {
     temizleAbonelikler();
+    const nesil = ++aboneNesil;
     const { aktifSube, aktifTarih } = get();
     const iso = haftaAralik(aktifTarih).anahtar;
     set({ yukleniyor: true });
 
-    unsubPersonel = repo.dinlePersonel(aktifSube, (liste) => {
-      set({ personeller: liste });
-    });
-    unsubOnayar = repo.dinleOnayar(aktifSube, (o) => {
-      set({ onayar: o });
-    });
-    unsubHafta = repo.dinleHafta(aktifSube, iso, (h) => {
-      // Yerel kaydetme sırasında snapshot tetiklenirse, bekleyen yazma varsa
-      // gelen veriyi ezme (kullanıcının yazdığını koru).
-      if (!bekleyenHafta) set({ hafta: h, yukleniyor: false });
-      else set({ yukleniyor: false });
+    const onErr = (etiket: string) => (e: Error) => {
+      console.warn(`[${etiket}] dinleyici hatası:`, (e as { code?: string }).code || e.message);
+      if (nesil !== aboneNesil || yenidenDeneme >= 5) return;
+      yenidenDeneme++;
+      ensureAuth().then(() => {
+        setTimeout(() => {
+          if (nesil === aboneNesil) aboneOl();
+        }, 600);
+      });
+    };
+
+    ensureAuth().then(() => {
+      if (nesil !== aboneNesil) return; // bu arada şube/hafta değişti
+      unsubPersonel = repo.dinlePersonel(
+        aktifSube,
+        (liste) => {
+          yenidenDeneme = 0;
+          set({ personeller: liste });
+        },
+        onErr('personel'),
+      );
+      unsubOnayar = repo.dinleOnayar(aktifSube, (o) => set({ onayar: o }), onErr('onayar'));
+      unsubHafta = repo.dinleHafta(
+        aktifSube,
+        iso,
+        (h) => {
+          if (!bekleyenHafta) set({ hafta: h, yukleniyor: false });
+          else set({ yukleniyor: false });
+        },
+        onErr('hafta'),
+      );
     });
   }
 
