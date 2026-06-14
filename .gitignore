@@ -1,0 +1,26 @@
+node_modules
+dist
+release
+.env
+.env.local
+*.log
+.DS_Store
+android/app/build
+android/build
+android/.gradle
+android/local.properties
+android/app/release
+*.keystore
+*.jks
+build/icon.*
+.vite
+
+# TS build info
+*.tsbuildinfo
+
+# Firebase deploy cache
+.firebase/
+
+# Örnek/üretilen Excel çıktıları
+vardiya_ornek.xlsx
+vardiya_*.xlsx

@@ -1,0 +1,219 @@
+:root {
+  --zemin: #0d0d0d;
+  --kart: #111111;
+  --kart-2: #161616;
+  --cizgi: #242424;
+  --cizgi-2: #2e2e2e;
+  --metin: #ededed;
+  --metin-2: #9a9a9a;
+  --metin-3: #5e5e5e;
+  --sari: #f4df16;
+  --uyari: #f4df16;
+  --hata: #e0533d;
+  --ok: #4caf7d;
+
+  --font-baslik: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-govde: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --r: 10px;
+  --r-s: 7px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--zemin);
+  color: var(--metin);
+  font-family: var(--font-govde);
+  font-size: 14px;
+  line-height: 1.4;
+  overscroll-behavior: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-baslik);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-govde);
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-govde);
+  font-size: 14px;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* ---- Genel bileşenler ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 14px;
+  border-radius: var(--r-s);
+  background: var(--kart-2);
+  border: 1px solid var(--cizgi-2);
+  color: var(--metin);
+  font-weight: 600;
+  font-size: 13px;
+  transition: border-color 0.12s, background 0.12s;
+  white-space: nowrap;
+}
+.btn:hover {
+  border-color: #3d3d3d;
+  background: #1c1c1c;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn.vurgu {
+  border-color: var(--sari);
+  color: var(--sari);
+}
+.btn.dolu {
+  background: var(--sari);
+  color: #000;
+  border-color: var(--sari);
+}
+.btn.tehlike {
+  border-color: #5a2a22;
+  color: var(--hata);
+}
+.btn:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.btn.kucuk {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.btn.ikon {
+  padding: 8px 10px;
+}
+
+.giris {
+  padding: 10px 12px;
+  background: var(--kart);
+  border: 1px solid var(--cizgi-2);
+  border-radius: var(--r-s);
+  color: var(--metin);
+  width: 100%;
+}
+.giris:focus {
+  outline: none;
+  border-color: var(--sari);
+}
+
+.etiket {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--metin-2);
+  font-weight: 600;
+}
+
+.kart {
+  background: var(--kart);
+  border: 1px solid var(--cizgi);
+  border-radius: var(--r);
+}
+
+/* Kaydırma çubukları */
+::-webkit-scrollbar {
+  height: 9px;
+  width: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c2c2c;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Modal / sayfa */
+.ortu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.66);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 50;
+  animation: fade 0.14s ease;
+}
+@media (min-width: 720px) {
+  .ortu {
+    align-items: center;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+.sayfa {
+  background: var(--kart);
+  border: 1px solid var(--cizgi-2);
+  border-radius: 14px 14px 0 0;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88vh;
+  overflow-y: auto;
+  padding: 18px;
+  animation: yukari 0.18s ease;
+}
+@media (min-width: 720px) {
+  .sayfa {
+    border-radius: 14px;
+  }
+}
+@keyframes yukari {
+  from {
+    transform: translateY(18px);
+  }
+}
+
+.rozet {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.uyari-rozet {
+  background: rgba(244, 223, 22, 0.14);
+  color: var(--sari);
+  border: 1px solid rgba(244, 223, 22, 0.4);
+}

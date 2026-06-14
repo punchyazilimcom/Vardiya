@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Başak Vardiya — yalnızca `vardiya/` ad alanını yönetir.
+// Diğer modüllerin koleksiyonlarına dokunmaz; onlar kendi kurallarında kalır.
+//
+// Yetki modeli: Uygulama anonim Firebase Auth ile giriş yapar. Rol/şube
+// kısıtı (PATRON 9999 / MÜDÜR 1111) istemci tarafında PIN ile uygulanır.
+// Firestore seviyesinde, kimliği doğrulanmış her istemci vardiya verisini
+// okuyup yazabilir. Bu, kapalı kurum içi bir uygulamadır.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Vardiya ad alanı: personel, ön ayarlar, haftalar
+    match /vardiya/{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // NOT: Burada başka match bloğu YOK; tanımlı olmayan yollar
+    // varsayılan olarak reddedilir, böylece diğer modüller bu dosyadan
+    // etkilenmez. Diğer modüllerin kuralları kendi deploy'larında durur.
+  }
+}

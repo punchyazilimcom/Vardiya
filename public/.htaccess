@@ -1,0 +1,26 @@
+# Başak Vardiya — Hostinger SPA fallback
+# dist/ içeriğini public_html'e yükleyin. Bu dosya, derin linklerin
+# index.html'e düşmesini sağlar (tek sayfa uygulama yönlendirmesi).
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Var olan dosya/dizinleri olduğu gibi sun
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  # Geri kalan her şeyi index.html'e yönlendir
+  RewriteRule ^ index.html [L]
+</IfModule>
+
+# Basit önbellekleme: hash'li statik varlıklar uzun süre, html kısa
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?|ttf|svg|png|jpg|jpeg|gif|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
