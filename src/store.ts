@@ -14,7 +14,7 @@ import { SUBELER } from './constants';
 import { haftaAralik, haftaKaydir } from './lib/week';
 import * as repo from './lib/repo';
 import { otomatikDoldur as motorDoldur } from './lib/otomatik';
-import { ensureAuth } from './firebase';
+import { ensureAuth, auth } from './firebase';
 import type { Unsubscribe } from 'firebase/firestore';
 
 export type KayitDurumu = 'idle' | 'kaydediliyor' | 'kaydedildi' | 'hata';
@@ -28,6 +28,8 @@ interface State {
   hafta: Hafta | null;
   yukleniyor: boolean;
   kayitDurumu: KayitDurumu;
+  taniUid: string | null; // teşhis: anonim giriş uid
+  taniHata: string | null; // teşhis: son dinleyici hata kodu
 
   girisYap: (yetki: RolYetki, sube: SubeKod | null) => void;
   cikis: () => void;
@@ -75,7 +77,9 @@ export const useStore = create<State>((set, get) => {
     set({ yukleniyor: true });
 
     const onErr = (etiket: string) => (e: Error) => {
-      console.warn(`[${etiket}] dinleyici hatası:`, (e as { code?: string }).code || e.message);
+      const kod = (e as { code?: string }).code || e.message;
+      console.warn(`[${etiket}] dinleyici hatası:`, kod);
+      set({ taniHata: `${etiket}: ${kod}` });
       if (nesil !== aboneNesil || yenidenDeneme >= 5) return;
       yenidenDeneme++;
       ensureAuth().then(() => {
@@ -87,11 +91,12 @@ export const useStore = create<State>((set, get) => {
 
     ensureAuth().then(() => {
       if (nesil !== aboneNesil) return; // bu arada şube/hafta değişti
+      set({ taniUid: auth.currentUser?.uid?.slice(0, 8) ?? null });
       unsubPersonel = repo.dinlePersonel(
         aktifSube,
         (liste) => {
           yenidenDeneme = 0;
-          set({ personeller: liste });
+          set({ personeller: liste, taniHata: null });
         },
         onErr('personel'),
       );
@@ -162,6 +167,8 @@ export const useStore = create<State>((set, get) => {
     hafta: null,
     yukleniyor: false,
     kayitDurumu: 'idle',
+    taniUid: null,
+    taniHata: null,
 
     girisYap: (yetki, sube) => {
       ensureAuth();

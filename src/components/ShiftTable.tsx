@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useStore } from '../store';
-import { GUNLER } from '../constants';
+import { GUNLER, SURUM } from '../constants';
 import { gunTarihleri, tarihEtiket, haftaAralik } from '../lib/week';
 import { hucreGorunum } from '../lib/cell';
 import { personelOzet } from '../lib/analiz';
@@ -19,6 +19,8 @@ export default function ShiftTable() {
     satirAlanYaz,
     yenidenBaglan,
     yukleniyor,
+    taniUid,
+    taniHata,
   } = useStore();
   const [aktifHucre, setAktifHucre] = useState<{ p: Personel; gun: Gun } | null>(null);
 
@@ -145,6 +147,10 @@ export default function ShiftTable() {
                 <button className="btn vurgu" onClick={() => yenidenBaglan()}>
                   ↻ Yeniden Bağlan
                 </button>
+                <div className="mono" style={{ marginTop: 12, fontSize: 11, color: '#666' }}>
+                  Tanı · sürüm {SURUM} · giriş: {taniUid ?? 'YOK'} ·{' '}
+                  {navigator.onLine ? 'çevrimiçi' : 'çevrimdışı'} · hata: {taniHata ?? 'yok'}
+                </div>
               </td>
             </tr>
           )}

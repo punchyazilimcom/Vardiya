@@ -121,3 +121,6 @@ export const MARKA = {
   kart: '#111111',
   sari: '#F4DF16',
 };
+
+// Build/sürüm damgası — hangi yapının yüklendiğini ekranda görmek için.
+export const SURUM = 'b7-1158';

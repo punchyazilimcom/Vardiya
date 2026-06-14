@@ -1,8 +1,6 @@
 import { initializeApp, type FirebaseApp } from 'firebase/app';
 import {
   initializeFirestore,
-  persistentLocalCache,
-  persistentSingleTabManager,
   type Firestore,
 } from 'firebase/firestore';
 import { getAuth, signInAnonymously, onAuthStateChanged, type Auth } from 'firebase/auth';
@@ -24,22 +22,13 @@ export const NS = (import.meta.env.VITE_VARDIYA_NAMESPACE as string) || 'vardiya
 
 export const app: FirebaseApp = initializeApp(firebaseConfig);
 
-// Offline-first: kalıcı yerel önbellek (tek sekme yöneticisi — mobilde daha
-// uyumlu). experimentalAutoDetectLongPolling: mobil veri / proxy ağlarında
-// Firestore akışı (WebChannel) engellenirse otomatik long-polling'e geçer —
-// "masaüstünde çalışıyor, telefonda boş" sorununun klasik çözümü.
+// Bağlantı sağlamlığı: bellek önbelleği (IndexedDB devre dışı — mobilde
+// kalıcı önbellek kaynaklı boş-ekran ihtimalini eler) + long-polling otomatik
+// algılama (mobil veri/proxy ağlarında WebChannel engellenirse devreye girer).
 function firestoreKur(): Firestore {
-  try {
-    return initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentSingleTabManager(undefined),
-      }),
-      experimentalAutoDetectLongPolling: true,
-    });
-  } catch (e) {
-    console.warn('Kalıcı önbellek kurulamadı, bellek önbelleğine düşülüyor:', e);
-    return initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
-  }
+  return initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+  });
 }
 
 export const db: Firestore = firestoreKur();

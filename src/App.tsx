@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useStore } from './store';
-import { SUBELER, subeAd, MARKA } from './constants';
+import { SUBELER, subeAd, MARKA, SURUM } from './constants';
 import { haftaAralik, aralikEtiket } from './lib/week';
 import * as repo from './lib/repo';
 import PinLogin from './components/PinLogin';
@@ -322,7 +322,7 @@ export default function App() {
         onChange={(e) => e.target.files?.[0] && excelIce(e.target.files[0])}
       />
 
-      <footer style={s.footer}>PUNCHYAZILIM</footer>
+      <footer style={s.footer}>PUNCHYAZILIM · v{SURUM}</footer>
     </div>
   );
 }
