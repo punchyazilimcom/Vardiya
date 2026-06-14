@@ -1,18 +1,29 @@
 /**
- * resources/icon-master.svg'den tüm platform ikonlarını üretir.
+ * Uygulama ikonlarını üretir. Kaynak: resources/logo-source.png (gerçek Başak
+ * Kır Pidesi logosu, siyah zemin + sarı). Yoksa resources/icon-master.svg.
  *   npx tsx scripts/gen-icons.ts
  * Üretilenler: web PWA/apple ikonları (public/), Electron (build/icon.png|ico),
  * Capacitor kaynağı (resources/icon.png).
  */
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import sharp from 'sharp';
 import pngToIco from 'png-to-ico';
 
-const master = readFileSync(new URL('../resources/icon-master.svg', import.meta.url));
+const LOGO = new URL('../resources/logo-source.png', import.meta.url);
+const SVG = new URL('../resources/icon-master.svg', import.meta.url);
+const kaynakPng = existsSync(LOGO);
+const master = kaynakPng ? readFileSync(LOGO) : readFileSync(SVG);
+
+// Siyah zemine oturt (logonun kendi zemini siyah; dikiş olmaz) ve kareye getir.
+function base(size: number) {
+  return sharp(master, { density: 512 })
+    .flatten({ background: '#000000' })
+    .resize(size, size, { fit: 'cover', position: 'center' });
+}
 
 async function png(size: number, out: string) {
   mkdirSync(out.replace(/\/[^/]+$/, ''), { recursive: true });
-  await sharp(master, { density: 384 }).resize(size, size).png().toFile(out);
+  await base(size).png().toFile(out);
   console.log('  ✓', out, `(${size})`);
 }
 
@@ -30,15 +41,13 @@ async function main() {
 
   // Windows .ico (çok boyutlu)
   const boyutlar = await Promise.all(
-    [16, 24, 32, 48, 64, 128, 256].map((s) =>
-      sharp(master, { density: 384 }).resize(s, s).png().toBuffer(),
-    ),
+    [16, 24, 32, 48, 64, 128, 256].map((s) => base(s).png().toBuffer()),
   );
   const ico = await pngToIco(boyutlar);
   writeFileSync('build/icon.ico', ico);
   console.log('  ✓ build/icon.ico');
 
-  console.log('\nİkonlar üretildi ✓');
+  console.log('\nİkonlar üretildi ✓ (kaynak: ' + (kaynakPng ? 'logo-source.png' : 'icon-master.svg') + ')');
 }
 
 main().catch((e) => {
