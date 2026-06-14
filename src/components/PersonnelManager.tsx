@@ -49,6 +49,8 @@ export default function PersonnelManager({ onKapat }: Props) {
       iseGiris: duzenle.iseGiris ?? '',
       tcKimlik: duzenle.tcKimlik ?? '',
       dogumTarihi: duzenle.dogumTarihi ?? '',
+      maas: duzenle.maas ?? '',
+      izinHakki: duzenle.izinHakki ?? '',
     });
     setDuzenle(null);
     setYeni(false);
@@ -228,6 +230,28 @@ export default function PersonnelManager({ onKapat }: Props) {
                     type="date"
                     value={duzenle.dogumTarihi ?? ''}
                     onChange={(e) => setDuzenle({ ...duzenle, dogumTarihi: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Maaş (₺)</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    placeholder="Örn: 45000"
+                    value={duzenle.maas ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, maas: e.target.value })}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">İzin Hakkı (gün)</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    placeholder="Örn: 14"
+                    value={duzenle.izinHakki ?? ''}
+                    onChange={(e) => setDuzenle({ ...duzenle, izinHakki: e.target.value })}
                   />
                 </div>
               </div>

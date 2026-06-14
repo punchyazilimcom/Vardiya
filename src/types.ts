@@ -48,6 +48,8 @@ export interface Personel {
   iseGiris?: string; // ISO tarih "2024-03-01"
   tcKimlik?: string;
   dogumTarihi?: string; // ISO tarih
+  maas?: string; // aylık net maaş (serbest metin, örn "45000")
+  izinHakki?: string; // yıllık izin hakkı (gün), örn "14"
 }
 
 // ---- Saat ön ayarları ----

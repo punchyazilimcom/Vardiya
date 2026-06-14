@@ -37,6 +37,8 @@ interface Kisi {
   iban?: string;
   iseGiris?: string; // ISO "2024-09-02"
   tcKimlik?: string;
+  maas?: string;
+  izinHakki?: string;
 }
 
 function slug(ad: string): string {
@@ -137,6 +139,8 @@ async function main() {
           iseGiris: k.iseGiris ?? '',
           tcKimlik: k.tcKimlik ?? '',
           dogumTarihi: '',
+          maas: k.maas ?? '',
+          izinHakki: k.izinHakki ?? '',
         },
         { merge: true },
       );

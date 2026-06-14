@@ -207,6 +207,50 @@ export interface ExportSube {
   onayar: SubeOnayar;
 }
 
+// ISO "2024-09-02" -> "02.09.2024"
+function tarihTR(iso?: string): string {
+  if (!iso) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
+}
+
+// Tüm şubelerin özlük bilgilerini tek "PERSONEL" sayfasında topla.
+function ozlukSayfasi(wb: XLSX.WorkBook, veriler: ExportSube[]) {
+  const basliklar = [
+    'ŞUBE', 'AD SOYAD', 'GÖREV', 'İZİN GÜNÜ', 'İZİN HAKKI (gün)', 'MAAŞ',
+    'TELEFON', 'IBAN', 'T.C. KİMLİK', 'İŞE GİRİŞ', 'DOĞUM', 'NOT',
+  ];
+  const aoa: (string | number)[][] = [basliklar];
+  for (const v of veriler) {
+    const liste = v.personeller
+      .filter((p) => p.aktif)
+      .slice()
+      .sort((a, b) => a.sira - b.sira);
+    for (const p of liste) {
+      aoa.push([
+        subeAd(v.sube).toLocaleUpperCase('tr-TR'),
+        p.ad,
+        p.rol === 'usta' ? 'USTA' : 'TEZGAH',
+        p.izinGunu ?? '',
+        p.izinHakki ?? '',
+        p.maas ?? '',
+        p.telefon ?? '',
+        p.iban ?? '',
+        p.tcKimlik ?? '',
+        tarihTR(p.iseGiris),
+        tarihTR(p.dogumTarihi),
+        p.not ?? '',
+      ]);
+    }
+  }
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [
+    { wch: 13 }, { wch: 24 }, { wch: 8 }, { wch: 16 }, { wch: 14 }, { wch: 10 },
+    { wch: 15 }, { wch: 30 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 22 },
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'PERSONEL');
+}
+
 export function disaAktar(veriler: ExportSube[]): ArrayBuffer {
   const wb = XLSX.utils.book_new();
   const basliklar = ['PERSONEL', '', ...GUNLER.map((g) => g.ad), 'İZİN GÜNÜ', 'NOT'];
@@ -252,6 +296,9 @@ export function disaAktar(veriler: ExportSube[]): ArrayBuffer {
     ws['!cols'] = [{ wch: 20 }, { wch: 3 }, ...GUNLER.map(() => ({ wch: 14 })), { wch: 16 }, { wch: 18 }];
     XLSX.utils.book_append_sheet(wb, ws, subeAd(v.sube).toLocaleUpperCase('tr-TR').slice(0, 31));
   }
+
+  // Tüm şubelerin özlük bilgileri ayrı "PERSONEL" sayfasında
+  ozlukSayfasi(wb, veriler);
 
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
 }
