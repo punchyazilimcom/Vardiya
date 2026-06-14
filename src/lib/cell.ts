@@ -3,7 +3,7 @@ import {
   GRUP_RENK,
   GRUP_AD,
   DURUM_AD,
-  DURUM_RENK,
+  durumRenkAktif as DURUM_RENK,
   BASKA_SUBE_RENK,
   subeAd,
 } from '../constants';

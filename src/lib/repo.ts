@@ -16,6 +16,7 @@ import type {
   SubeOnayar,
   Hafta,
 } from '../types';
+import type { DurumRenkAyar } from '../constants';
 import { GENEL_PRESET, BAHCELIEVLER_OVERRIDE } from '../constants';
 
 // ---- Doc/Collection referansları (hepsi `vardiya/` ad alanı altında) ----
@@ -133,4 +134,26 @@ export async function kaydetHafta(
   h: Hafta,
 ): Promise<void> {
   await setDoc(haftaDoc(sube, iso), h);
+}
+
+// ---- Genel ayarlar (durum renkleri) ----
+const durumRenkDoc = () => doc(db, NS, 'ayarlar', 'global', 'durumRenk');
+
+export async function getDurumRenk(): Promise<DurumRenkAyar | null> {
+  const snap = await getDoc(durumRenkDoc());
+  return snap.exists() ? (snap.data() as DurumRenkAyar) : null;
+}
+
+export async function kaydetDurumRenk(map: DurumRenkAyar): Promise<void> {
+  await setDoc(durumRenkDoc(), map);
+}
+
+// ---- Tüm personel (tüm şubeler) ----
+export async function getTumPersonel(): Promise<
+  { sube: SubeKod; personeller: Personel[] }[]
+> {
+  const subeler: SubeKod[] = ['demetevler', 'bahcelievler', 'etlik', 'batikent'];
+  return Promise.all(
+    subeler.map(async (sube) => ({ sube, personeller: await getPersonel(sube) })),
+  );
 }

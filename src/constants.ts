@@ -75,6 +75,35 @@ export const DURUM_RENK: Record<
   bos: { bg: 'transparent', fg: '#555', pdf: [255, 255, 255] },
 };
 
+// Çalışma zamanı durum renkleri (kullanıcı "Renk Ayarları"ndan değiştirebilir).
+// Varsayılanların kopyası; Firestore'dan yüklenince güncellenir.
+export type DurumRenkAyar = Partial<Record<Durum, { bg: string; fg: string }>>;
+
+export const durumRenkAktif: Record<
+  Durum,
+  { bg: string; fg: string; pdf: [number, number, number] }
+> = JSON.parse(JSON.stringify(DURUM_RENK));
+
+function hexToRgb(hex: string): [number, number, number] {
+  const m = hex.replace('#', '');
+  const n = m.length === 3 ? m.split('').map((c) => c + c).join('') : m;
+  const num = parseInt(n, 16);
+  if (Number.isNaN(num)) return [255, 255, 255];
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+}
+
+export function setTumDurumRenk(map: DurumRenkAyar) {
+  (Object.keys(map) as Durum[]).forEach((d) => {
+    const v = map[d];
+    if (!v) return;
+    durumRenkAktif[d] = {
+      bg: v.bg,
+      fg: v.fg,
+      pdf: v.bg === 'transparent' ? [255, 255, 255] : hexToRgb(v.bg),
+    };
+  });
+}
+
 // Başka şube hücresi için çerçeve rengi (farklı çerçeve)
 export const BASKA_SUBE_RENK = {
   bg: '#241a08',
@@ -123,4 +152,4 @@ export const MARKA = {
 };
 
 // Build/sürüm damgası — hangi yapının yüklendiğini ekranda görmek için.
-export const SURUM = 'b9-1209';
+export const SURUM = 'b10-1957';

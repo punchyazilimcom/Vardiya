@@ -10,7 +10,7 @@ import type {
   PersonelHaftaSatiri,
   RolYetki,
 } from './types';
-import { SUBELER } from './constants';
+import { SUBELER, setTumDurumRenk, type DurumRenkAyar } from './constants';
 import { haftaAralik, haftaKaydir } from './lib/week';
 import * as repo from './lib/repo';
 import { otomatikDoldur as motorDoldur } from './lib/otomatik';
@@ -30,6 +30,7 @@ interface State {
   kayitDurumu: KayitDurumu;
   taniUid: string | null; // teşhis: anonim giriş uid
   taniHata: string | null; // teşhis: son dinleyici hata kodu
+  renkNesil: number; // durum renkleri değişince artar (yeniden render)
 
   girisYap: (yetki: RolYetki, sube: SubeKod | null) => void;
   cikis: () => void;
@@ -48,6 +49,13 @@ interface State {
   kaydetPersonel: (p: Personel) => Promise<void>;
   silPersonel: (id: string) => Promise<void>;
   yenidenSirala: (sirali: Personel[]) => Promise<void>;
+  personeleSubeEkle: (
+    hedefSube: SubeKod,
+    p: Personel,
+    tasi: boolean,
+    kaynakSube?: SubeKod,
+  ) => Promise<void>;
+  kaydetDurumRenkAyar: (map: DurumRenkAyar) => Promise<void>;
 }
 
 let unsubPersonel: Unsubscribe | null = null;
@@ -172,6 +180,7 @@ export const useStore = create<State>((set, get) => {
     kayitDurumu: 'idle',
     taniUid: null,
     taniHata: null,
+    renkNesil: 0,
 
     girisYap: (yetki, sube) => {
       ensureAuth();
@@ -181,6 +190,16 @@ export const useStore = create<State>((set, get) => {
         aktifSube,
       });
       aboneOl();
+      // Durum renklerini yükle (genel ayar)
+      ensureAuth()
+        .then(() => repo.getDurumRenk())
+        .then((map) => {
+          if (map) {
+            setTumDurumRenk(map);
+            set({ renkNesil: get().renkNesil + 1 });
+          }
+        })
+        .catch(() => {});
     },
 
     cikis: () => {
@@ -298,6 +317,19 @@ export const useStore = create<State>((set, get) => {
         get().aktifSube,
         sirali.map((p, i) => ({ id: p.id, sira: i })),
       );
+    },
+    personeleSubeEkle: async (hedefSube, p, tasi, kaynakSube) => {
+      // Hedef şubeye ekle (kopya). Taşıma ise kaynaktan sil.
+      const kaynak = kaynakSube ?? get().aktifSube;
+      if (hedefSube === kaynak) return;
+      const hedef = await repo.getPersonel(hedefSube);
+      await repo.kaydetPersonel(hedefSube, { ...p, sira: hedef.length });
+      if (tasi) await repo.silPersonel(kaynak, p.id);
+    },
+    kaydetDurumRenkAyar: async (map) => {
+      setTumDurumRenk(map);
+      set({ renkNesil: get().renkNesil + 1 });
+      await repo.kaydetDurumRenk(map);
     },
   };
 });

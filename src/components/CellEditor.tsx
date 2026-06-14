@@ -4,7 +4,7 @@ import {
   GRUP_AD,
   GRUP_RENK,
   DURUM_AD,
-  DURUM_RENK,
+  durumRenkAktif as DURUM_RENK,
   SUBELER,
   subeAd,
 } from '../constants';

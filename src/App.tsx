@@ -8,10 +8,12 @@ import ShiftTable from './components/ShiftTable';
 import PersonnelManager from './components/PersonnelManager';
 import TimeSettings from './components/TimeSettings';
 import CrossBranchPanel from './components/CrossBranchPanel';
+import AllPersonnel from './components/AllPersonnel';
+import ColorSettings from './components/ColorSettings';
 import SaveIndicator from './components/SaveIndicator';
 import type { SubeKod } from './types';
 
-type Modal = 'personel' | 'saat' | 'capraz' | 'menu' | 'uyari' | null;
+type Modal = 'personel' | 'saat' | 'capraz' | 'tum' | 'renk' | 'menu' | 'uyari' | null;
 
 export default function App() {
   const {
@@ -261,7 +263,9 @@ export default function App() {
               <button className="btn vurgu" onClick={otoDoldur}>✨ Otomatik Doldur</button>
               <button className="btn" onClick={kopyala}>⧉ Geçen Haftayı Kopyala</button>
               <button className="btn" onClick={() => setModal('personel')}>👥 Personel</button>
+              <button className="btn" onClick={() => setModal('tum')}>📋 Tüm Personeller</button>
               <button className="btn" onClick={() => setModal('saat')}>⏱ Saat Ayarları</button>
+              <button className="btn" onClick={() => setModal('renk')}>🎨 Renk Ayarları</button>
               <button className="btn" onClick={() => setModal('capraz')}>↗ Başka Şubeden Gelenler</button>
             </div>
 
@@ -313,6 +317,8 @@ export default function App() {
       {modal === 'personel' && <PersonnelManager onKapat={() => setModal(null)} />}
       {modal === 'saat' && <TimeSettings onKapat={() => setModal(null)} />}
       {modal === 'capraz' && <CrossBranchPanel onKapat={() => setModal(null)} />}
+      {modal === 'tum' && <AllPersonnel onKapat={() => setModal(null)} />}
+      {modal === 'renk' && <ColorSettings onKapat={() => setModal(null)} />}
 
       <input
         ref={dosyaRef}
