@@ -135,6 +135,15 @@ npx cap add android
 npx cap sync android
 ```
 
+Uygulama ikonu (Android) — `resources/icon.png` (1024×1024) hazırdır:
+```bash
+npm run icons                       # ikonları yeniden üretmek isterseniz
+npx @capacitor/assets generate --android
+```
+> Web ve Windows ikonları otomatik: web `public/` içindeki PWA/apple ikonları
+> kullanır; Electron `build/icon.ico`'yu otomatik alır. İkon tasarımını
+> değiştirmek için `resources/icon-master.svg`'yi düzenleyip `npm run icons` çalıştırın.
+
 Keystore oluştur (bir kez) ve `android/key.properties` yaz:
 ```bash
 keytool -genkey -v -keystore basak-vardiya.keystore \

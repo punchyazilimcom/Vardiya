@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Başak Vardiya app ikonu — siyah zemin, sarı yalnız vurgu, endüstriyel -->
+  <rect width="1024" height="1024" rx="224" fill="#0D0D0D"/>
+  <rect x="2" y="2" width="1020" height="1020" rx="222" fill="none" stroke="#202020" stroke-width="4"/>
+  <!-- haftalık vardiya çizelgesi motifi: üst satır sarı vurgu, altları gri -->
+  <g>
+    <rect x="208" y="300" width="608" height="104" rx="26" fill="#F4DF16"/>
+    <rect x="208" y="460" width="430" height="104" rx="26" fill="#4A4A4A"/>
+    <rect x="208" y="620" width="520" height="104" rx="26" fill="#2C2C2C"/>
+  </g>
+</svg>

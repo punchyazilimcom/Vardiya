@@ -18,8 +18,8 @@ export default function ShiftTable() {
   const tezgahlar = aktifler.filter((p) => p.rol === 'tezgahtar');
   const gunler = gunTarihleri(aktifTarih);
   const uyarilar = useMemo(
-    () => gunKapsam(aktifSube, hafta, aktifler),
-    [aktifSube, hafta, aktifler],
+    () => gunKapsam(aktifSube, hafta, aktifler, onayar),
+    [aktifSube, hafta, aktifler, onayar],
   );
   const a = haftaAralik(aktifTarih);
 

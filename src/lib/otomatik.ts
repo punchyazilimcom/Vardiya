@@ -58,6 +58,23 @@ function fullSaat(onayar: SubeOnayar, rol: Rol): string {
   return `${cozSaat(onayar, rol, 'acilis').baslangic}-FULL`;
 }
 
+// Usta için: haftanın bir günü (Cumartesi) kapanış ustasına +1 saat.
+const EK_SAAT_GUN: Gun = 'cumartesi';
+
+function saatArti(hhmm: string, saat: number): string {
+  const m = hhmm.match(/^(\d{1,2}):(\d{2})$/);
+  if (!m) return hhmm; // KAPANIŞ/FULL gibi metinlerde dokunma
+  const h = (Number(m[1]) + saat) % 24;
+  return `${String(h).padStart(2, '0')}:${m[2]}`;
+}
+
+// Usta kapanış hücresi, Cumartesi ise +1 saatlik özel saat üretir.
+function ustaKapanisCumartesi(onayar: SubeOnayar): string | null {
+  const ka = cozSaat(onayar, 'usta', 'kapanis');
+  if (!/^\d{1,2}:\d{2}$/.test(ka.bitis)) return null;
+  return `${ka.baslangic}-${saatArti(ka.bitis, 1)}`;
+}
+
 const TURLER: Grup[] = ['acilis', 'araci', 'kapanis'];
 
 // Bir satırın geçen haftaki baskın grubunu bul (rotasyon için).
@@ -256,6 +273,12 @@ export function otomatikDoldur(opts: {
         }
         if (at.full) {
           yeniHucreler[at.pid][gun.kod] = { tip: 'ozelSaat', ozelSaat: fullSaat(onayar, rol) };
+        } else if (rol === 'usta' && gun.kod === EK_SAAT_GUN && at.grup === 'kapanis') {
+          // Cumartesi kapanış ustasına +1 saat (kapsam yine "kapanış" sayılır)
+          const ek = ustaKapanisCumartesi(onayar);
+          yeniHucreler[at.pid][gun.kod] = ek
+            ? { tip: 'ozelSaat', ozelSaat: ek }
+            : { tip: 'grup', grup: at.grup };
         } else {
           yeniHucreler[at.pid][gun.kod] = { tip: 'grup', grup: at.grup };
         }
@@ -310,10 +333,15 @@ function grupSay(
   hafta: Hafta | null,
   liste: Personel[],
   gun: Gun,
+  rol: Rol,
+  onayar: SubeOnayar,
 ): { acilis: number; araci: number; kapanis: number } {
   let ac = 0,
     ar = 0,
     ka = 0;
+  const sAc = cozSaat(onayar, rol, 'acilis').baslangic;
+  const sAr = cozSaat(onayar, rol, 'araci').baslangic;
+  const sKa = cozSaat(onayar, rol, 'kapanis').baslangic;
   for (const p of liste) {
     const h = hafta?.hucreler?.[p.id]?.[gun];
     if (!h) continue;
@@ -329,6 +357,12 @@ function grupSay(
       if (h.grup === 'acilis') ac++;
       else if (h.grup === 'araci') ar++;
       else ka++;
+    } else if (h.tip === 'ozelSaat' && h.ozelSaat) {
+      // Özel saat (örn. +1 saatlik kapanış) başlangıcına göre gruba say
+      const start = h.ozelSaat.split('-')[0].trim();
+      if (start === sAc) ac++;
+      else if (start === sKa) ka++;
+      else if (start === sAr) ar++;
     }
   }
   return { acilis: ac, araci: ar, kapanis: ka };
@@ -338,6 +372,7 @@ export function gunKapsam(
   sube: SubeKod,
   hafta: Hafta | null,
   personeller: Personel[],
+  onayar: SubeOnayar,
 ): Record<Gun, GunKapsam> {
   const ustalar = personeller.filter((p) => p.aktif && p.rol === 'usta');
   const tezgahlar = personeller.filter((p) => p.aktif && p.rol === 'tezgahtar');
@@ -350,7 +385,7 @@ export function gunKapsam(
     ] as [Rol, Personel[]][]) {
       if (liste.length === 0) continue;
       const hedef = hedefAl(sube, rol);
-      const say = grupSay(hafta, liste, g.kod);
+      const say = grupSay(hafta, liste, g.kod, rol, onayar);
       if (say.acilis < hedef.acilis)
         eksikler.push(`${rolAd(rol)} açılış ${say.acilis}/${hedef.acilis}`);
       if (say.kapanis < hedef.kapanis)
