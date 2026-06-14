@@ -13,6 +13,7 @@
     "seed": "tsx scripts/seed.ts",
     "seed:personel": "tsx scripts/seed-personel.ts",
     "icons": "tsx scripts/gen-icons.ts",
+    "ornek:excel": "tsx scripts/ornek-excel.ts",
     "electron:dev": "concurrently -k \"vite\" \"wait-on tcp:5173 && cross-env ELECTRON_DEV=1 electron electron/main.cjs\"",
     "electron:build": "npm run build && electron-builder --win nsis",
     "cap:sync": "npm run build && cap sync android",

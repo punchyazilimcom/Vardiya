@@ -19,3 +19,6 @@ android/app/release
 
 # Firebase deploy cache
 .firebase/
+
+# Üretilen örnek/dışa-aktarma dosyaları
+vardiya_*.xlsx

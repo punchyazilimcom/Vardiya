@@ -253,7 +253,81 @@ export function disaAktar(veriler: ExportSube[]): ArrayBuffer {
     XLSX.utils.book_append_sheet(wb, ws, subeAd(v.sube).toLocaleUpperCase('tr-TR').slice(0, 31));
   }
 
+  // ---- PERSONEL özlük sayfası (tüm şubeler) ----
+  personelSayfasi(wb, veriler);
+
   return XLSX.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
+}
+
+// ISO "2024-09-02" -> "02.09.2024" (gösterim)
+function trTarih(iso?: string): string {
+  if (!iso) return '';
+  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
+}
+
+function gorevAd(p: Personel): string {
+  if ((p.not ?? '').toLocaleUpperCase('tr-TR').includes('OFİS')) return 'OFİS';
+  return p.rol === 'usta' ? 'USTA' : 'TEZGAH';
+}
+
+function izinHakkiMetin(p: Personel): string {
+  const y = p.yillikIzin ?? 0;
+  const k = p.kullanilanIzin ?? 0;
+  const r = p.kalanIzin ?? 0;
+  if (!y && !k && !r) return '';
+  return `${y} / ${k} / ${r}`; // yıllık / kullanılan / kalan
+}
+
+function personelSayfasi(wb: XLSX.WorkBook, veriler: ExportSube[]) {
+  const basliklar = [
+    'ŞUBE',
+    'AD SOYAD',
+    'GÖREV',
+    'İZİN GÜNÜ',
+    'İZİN HAKKI (Y/K/Kalan)',
+    'MAAŞ',
+    'TELEFON',
+    'IBAN',
+    'T.C. KİMLİK',
+    'İŞE GİRİŞ',
+    'DOĞUM',
+    'NOT',
+  ];
+  const aoa: (string | number)[][] = [basliklar];
+  for (const v of veriler) {
+    const liste = [...v.personeller].sort((a, b) => a.sira - b.sira);
+    for (const p of liste) {
+      aoa.push([
+        subeAd(v.sube).toLocaleUpperCase('tr-TR'),
+        p.ad,
+        gorevAd(p),
+        p.izinGunu ?? '',
+        izinHakkiMetin(p),
+        p.maas ?? '',
+        p.telefon ?? '',
+        p.iban ?? '',
+        p.tcKimlik ?? '',
+        trTarih(p.iseGiris),
+        trTarih(p.dogumTarihi),
+        p.not ?? '',
+      ]);
+    }
+  }
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  // TC ve IBAN'ı metin olarak işaretle (bilimsel gösterim olmasın)
+  const aralik = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+  for (let r = 1; r <= aralik.e.r; r++) {
+    for (const c of [7, 8]) {
+      const adr = XLSX.utils.encode_cell({ r, c });
+      if (ws[adr]) ws[adr].t = 's';
+    }
+  }
+  ws['!cols'] = [
+    { wch: 13 }, { wch: 24 }, { wch: 9 }, { wch: 16 }, { wch: 16 }, { wch: 10 },
+    { wch: 15 }, { wch: 30 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 24 },
+  ];
+  XLSX.utils.book_append_sheet(wb, ws, 'PERSONEL');
 }
 
 export const TUM_SUBELER = SUBELER.map((s) => s.kod);
