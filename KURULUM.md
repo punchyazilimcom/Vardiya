@@ -193,6 +193,37 @@ npm run electron:build
 
 > İkon istiyorsanız `build/icon.ico` ekleyin (electron-builder otomatik alır).
 
+## 8) Bilgisayarsız kurulum dosyası (.exe + .apk) — telefondan
+
+Bilgisayarın yoksa, kurulum dosyalarını GitHub sunucusunda üretip telefondan
+indirebilirsin (`.github/workflows/build-installers.yml`). Hiçbir sır/secret
+gerekmez.
+
+**Çalıştırma (telefon tarayıcısından):**
+1. `github.com/punchyazilimcom/Vardiya` → **Actions** sekmesi
+2. Sol listeden **"Kurulum dosyaları (Windows .exe + Android .apk)"**
+3. Sağda **Run workflow** → dalı seç → **Run workflow**
+4. Yeşil bitince işe gir → en altta **Artifacts**:
+   - **windows-exe** → `Basak Vardiya Setup 1.0.0.exe` (Windows kurulumu)
+   - **android-apk** → `basak-vardiya.apk` (Android kurulumu)
+
+> ⚠️ **Run workflow** butonu yalnızca workflow dosyası **varsayılan dalda**
+> (main) varken görünür. Bu yüzden bu workflow'u önce `main`'e merge et.
+
+**Telefona APK kurulumu:** indirilen `basak-vardiya.apk`'yı aç → Android
+"bilinmeyen kaynaklara izin ver" dediğinde onayla → kur. (APK *debug/imzasız*
+olduğundan Play Store dışı kurulumdur; iç kullanım için yeterlidir.)
+
+**Windows kurulumu:** `.exe` imzasız olduğundan SmartScreen "Daha fazla bilgi →
+Yine de çalıştır" diyebilir (normaldir), sonra normal kurulum sihirbazı gelir.
+
+**Sürümle yayınlama (opsiyonel):** Bir sürüm etiketi push edersen workflow her
+iki dosyayı da otomatik bir **GitHub Release**'e ekler (sabit indirme linki):
+```bash
+git tag v1.0.0 && git push origin v1.0.0
+```
+→ `github.com/punchyazilimcom/Vardiya/releases` altında `.exe` + `.apk` hazır.
+
 ---
 
 ## Özellikler (özet)
