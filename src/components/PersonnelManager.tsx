@@ -49,6 +49,10 @@ export default function PersonnelManager({ onKapat }: Props) {
       iseGiris: duzenle.iseGiris ?? '',
       tcKimlik: duzenle.tcKimlik ?? '',
       dogumTarihi: duzenle.dogumTarihi ?? '',
+      maas: duzenle.maas ?? '',
+      yillikIzin: duzenle.yillikIzin ?? 0,
+      kullanilanIzin: duzenle.kullanilanIzin ?? 0,
+      kalanIzin: duzenle.kalanIzin ?? 0,
     });
     setDuzenle(null);
     setYeni(false);
@@ -228,6 +232,49 @@ export default function PersonnelManager({ onKapat }: Props) {
                     type="date"
                     value={duzenle.dogumTarihi ?? ''}
                     onChange={(e) => setDuzenle({ ...duzenle, dogumTarihi: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+            <div style={{ borderTop: '1px solid #222', paddingTop: 12 }}>
+              <div style={s.blokBaslik}>MAAŞ & İZİN HAKKI</div>
+              <div style={{ marginTop: 8 }}>
+                <label className="etiket">Maaş (Sigorta Ücreti)</label>
+                <input
+                  className="giris mono"
+                  placeholder="₺11,800"
+                  value={duzenle.maas ?? ''}
+                  onChange={(e) => setDuzenle({ ...duzenle, maas: e.target.value })}
+                />
+              </div>
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Yıllık İzin</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    value={duzenle.yillikIzin ?? 0}
+                    onChange={(e) => setDuzenle({ ...duzenle, yillikIzin: Number(e.target.value) || 0 })}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Kullanılan</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    value={duzenle.kullanilanIzin ?? 0}
+                    onChange={(e) =>
+                      setDuzenle({ ...duzenle, kullanilanIzin: Number(e.target.value) || 0 })
+                    }
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label className="etiket">Kalan</label>
+                  <input
+                    className="giris mono"
+                    inputMode="numeric"
+                    value={duzenle.kalanIzin ?? 0}
+                    onChange={(e) => setDuzenle({ ...duzenle, kalanIzin: Number(e.target.value) || 0 })}
                   />
                 </div>
               </div>
