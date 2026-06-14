@@ -35,6 +35,7 @@ interface State {
   haftaIleri: () => void;
   haftaGeri: () => void;
   buHafta: () => void;
+  yenidenBaglan: () => void;
 
   hucreYaz: (personelId: string, gun: Gun, hucre: Hucre) => void;
   satirAlanYaz: (personelId: string, alan: 'izinGunu' | 'not', deger: string) => void;
@@ -194,6 +195,10 @@ export const useStore = create<State>((set, get) => {
     },
     buHafta: () => {
       set({ aktifTarih: new Date() });
+      aboneOl();
+    },
+    yenidenBaglan: () => {
+      yenidenDeneme = 0;
       aboneOl();
     },
 

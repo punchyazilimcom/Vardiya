@@ -9,8 +9,17 @@ import type { Gun, Hucre, Personel } from '../types';
 import CellEditor from './CellEditor';
 
 export default function ShiftTable() {
-  const { personeller, hafta, onayar, aktifSube, aktifTarih, hucreYaz, satirAlanYaz } =
-    useStore();
+  const {
+    personeller,
+    hafta,
+    onayar,
+    aktifSube,
+    aktifTarih,
+    hucreYaz,
+    satirAlanYaz,
+    yenidenBaglan,
+    yukleniyor,
+  } = useStore();
   const [aktifHucre, setAktifHucre] = useState<{ p: Personel; gun: Gun } | null>(null);
 
   const aktifler = useMemo(() => personeller.filter((p) => p.aktif), [personeller]);
@@ -128,7 +137,14 @@ export default function ShiftTable() {
           {aktifler.length === 0 && (
             <tr>
               <td colSpan={GUNLER.length + 3} style={st.bos}>
-                Bu şubede aktif personel yok. "Personel" menüsünden ekleyin.
+                <div style={{ marginBottom: 10 }}>
+                  {yukleniyor
+                    ? 'Yükleniyor…'
+                    : 'Personel görünmüyor. Bağlantı kurulamadıysa yeniden deneyin.'}
+                </div>
+                <button className="btn vurgu" onClick={() => yenidenBaglan()}>
+                  ↻ Yeniden Bağlan
+                </button>
               </td>
             </tr>
           )}
