@@ -232,6 +232,30 @@ function subeSayfasi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, ilkSayfa: boole
   chip(BASKA_SUBE_RENK.pdf, 'Başka şube', BASKA_SUBE_RENK.pdfBorder);
 }
 
+// ---- Premium sayfa çerçevesi + sarı köşe vurguları ----
+function cerceve(doc: jsPDF, W: number, H: number) {
+  const o = 4;
+  doc.setDrawColor(35, 35, 35);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(o, o, W - o * 2, H - o * 2, 2.6, 2.6, 'S');
+  // köşe L vurguları (sarı)
+  doc.setDrawColor(...SARI);
+  doc.setLineWidth(1.2);
+  const L = 11;
+  // sol-üst
+  doc.line(o, o + 2.6, o, o + L);
+  doc.line(o + 2.6, o, o + L, o);
+  // sağ-üst
+  doc.line(W - o, o + 2.6, W - o, o + L);
+  doc.line(W - o - 2.6, o, W - o - L, o);
+  // sol-alt
+  doc.line(o, H - o - 2.6, o, H - o - L);
+  doc.line(o + 2.6, H - o, o + L, H - o);
+  // sağ-alt
+  doc.line(W - o, H - o - 2.6, W - o, H - o - L);
+  doc.line(W - o - 2.6, H - o, W - o - L, H - o);
+}
+
 // ---- Footer + sayfa numarası (tüm sayfalara) ----
 function footerlar(doc: jsPDF) {
   const W = doc.internal.pageSize.getWidth();
@@ -241,6 +265,7 @@ function footerlar(doc: jsPDF) {
   const tarihStr = `${String(bugun.getDate()).padStart(2, '0')}.${String(bugun.getMonth() + 1).padStart(2, '0')}.${bugun.getFullYear()}`;
   for (let i = 1; i <= n; i++) {
     doc.setPage(i);
+    cerceve(doc, W, H);
     doc.setDrawColor(...CIZGI);
     doc.setLineWidth(0.2);
     doc.line(12, H - 8.5, W - 12, H - 8.5);
