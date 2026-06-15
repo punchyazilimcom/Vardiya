@@ -182,4 +182,4 @@ export const MARKA = {
 };
 
 // Build/sürüm damgası — hangi yapının yüklendiğini ekranda görmek için.
-export const SURUM = 'b12-0420';
+export const SURUM = 'b13-0435';

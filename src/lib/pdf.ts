@@ -16,7 +16,6 @@ import { gunTarihleri, haftaAralik } from './week';
 // Marka tonları
 const SIYAH: [number, number, number] = [13, 13, 13];
 const SARI: [number, number, number] = [244, 223, 22];
-const GRI: [number, number, number] = [120, 120, 120];
 const CIZGI: [number, number, number] = [225, 225, 225];
 const ZEBRA: [number, number, number] = [249, 249, 247];
 
@@ -174,10 +173,10 @@ function subeSayfasi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, ilkSayfa: boole
       },
       alternateRowStyles: { fillColor: ZEBRA },
       columnStyles: {
-        // İsim sütunu: siyah zemin + sarı yazı (marka)
+        // İsim + İzin + Not sütunları: siyah zemin + sarı yazı (marka)
         0: { halign: 'left', cellWidth: 42, fontStyle: 'bold', fillColor: SIYAH, textColor: SARI },
-        8: { halign: 'left', cellWidth: 26, textColor: GRI },
-        9: { halign: 'left', cellWidth: 32, textColor: GRI },
+        8: { halign: 'left', cellWidth: 26, fillColor: SIYAH, textColor: SARI },
+        9: { halign: 'left', cellWidth: 32, fillColor: SIYAH, textColor: SARI },
       },
       margin: { left: 12, right: 12 },
       tableWidth: W - 24,
