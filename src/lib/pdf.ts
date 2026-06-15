@@ -17,7 +17,6 @@ import { gunTarihleri, haftaAralik } from './week';
 const SIYAH: [number, number, number] = [13, 13, 13];
 const SARI: [number, number, number] = [244, 223, 22];
 const GRI: [number, number, number] = [120, 120, 120];
-const ACIK_GRI: [number, number, number] = [150, 150, 150];
 const CIZGI: [number, number, number] = [225, 225, 225];
 const ZEBRA: [number, number, number] = [249, 249, 247];
 
@@ -96,18 +95,21 @@ function baslikBandi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, W: number): num
   return bandH + 7;
 }
 
-// ---- Bölüm şeridi (USTALAR / TEZGAHTAR) ----
-function bolumSeridi(doc: jsPDF, baslik: string, adet: number, y: number) {
+// ---- Bölüm şeridi (USTALAR / TEZGAHTAR) — siyah bar + sarı yazı ----
+function bolumSeridi(doc: jsPDF, baslik: string, adet: number, y: number, W: number) {
+  const h = 6.5;
+  doc.setFillColor(...SIYAH);
+  doc.roundedRect(12, y - h + 1.5, W - 24, h, 1.2, 1.2, 'F');
   doc.setFillColor(...SARI);
-  doc.roundedRect(12, y - 3.6, 2.2, 5, 0.6, 0.6, 'F');
+  doc.roundedRect(12, y - h + 1.5, 2.4, h, 1.2, 1.2, 'F');
   doc.setFont('DejaVu', 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor(25, 25, 25);
-  doc.text(baslik, 17, y);
+  doc.setFontSize(9);
+  doc.setTextColor(...SARI);
+  doc.text(baslik, 17, y - 0.5);
   doc.setFont('DejaVu', 'normal');
   doc.setFontSize(7.5);
-  doc.setTextColor(...ACIK_GRI);
-  doc.text(`${adet} kişi`, 17 + doc.getTextWidth(baslik) + 4, y);
+  doc.setTextColor(190, 190, 190);
+  doc.text(`${adet} kişi`, 17 + doc.getTextWidth(baslik) + 4, y - 0.5);
 }
 
 function subeSayfasi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, ilkSayfa: boolean) {
@@ -128,8 +130,8 @@ function subeSayfasi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, ilkSayfa: boole
 
   function blok(baslik: string, liste: Personel[]) {
     if (liste.length === 0) return;
-    bolumSeridi(doc, baslik, liste.length, y + 1);
-    y += 4;
+    bolumSeridi(doc, baslik, liste.length, y + 4, W);
+    y += 7;
 
     const body = liste.map((p) => {
       const satir = veri.hafta?.hucreler?.[p.id];
@@ -162,17 +164,18 @@ function subeSayfasi(doc: jsPDF, veri: SubePdfVeri, tarih: Date, ilkSayfa: boole
       headStyles: {
         font: 'DejaVu',
         fontStyle: 'bold',
-        fillColor: [22, 22, 22],
-        textColor: [238, 238, 238],
+        fillColor: SIYAH,
+        textColor: SARI,
         fontSize: 7,
         halign: 'center',
         valign: 'middle',
-        lineColor: [22, 22, 22],
+        lineColor: SIYAH,
         cellPadding: { top: 2, bottom: 2, left: 1, right: 1 },
       },
       alternateRowStyles: { fillColor: ZEBRA },
       columnStyles: {
-        0: { halign: 'left', cellWidth: 42, fontStyle: 'bold', fillColor: [255, 255, 255] },
+        // İsim sütunu: siyah zemin + sarı yazı (marka)
+        0: { halign: 'left', cellWidth: 42, fontStyle: 'bold', fillColor: SIYAH, textColor: SARI },
         8: { halign: 'left', cellWidth: 26, textColor: GRI },
         9: { halign: 'left', cellWidth: 32, textColor: GRI },
       },

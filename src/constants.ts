@@ -67,7 +67,7 @@ export const DURUM_RENK: Record<
   Durum,
   { bg: string; fg: string; pdf: [number, number, number] }
 > = {
-  izinli: { bg: '#1c1c1c', fg: '#9a9a9a', pdf: [232, 232, 232] },
+  izinli: { bg: '#3a1414', fg: '#ff7676', pdf: [250, 214, 214] },
   senelik: { bg: '#1a2433', fg: '#8fb6e0', pdf: [221, 232, 245] },
   bayram: { bg: '#33261a', fg: '#e0b68f', pdf: [245, 235, 221] },
   full: { bg: '#2c2a14', fg: '#e7da6a', pdf: [247, 243, 200] },
@@ -182,4 +182,4 @@ export const MARKA = {
 };
 
 // Build/sürüm damgası — hangi yapının yüklendiğini ekranda görmek için.
-export const SURUM = 'b11-0331';
+export const SURUM = 'b12-0420';
