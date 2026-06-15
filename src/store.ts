@@ -10,7 +10,13 @@ import type {
   PersonelHaftaSatiri,
   RolYetki,
 } from './types';
-import { SUBELER, setTumDurumRenk, type DurumRenkAyar } from './constants';
+import {
+  SUBELER,
+  setTumDurumRenk,
+  setTumGrupRenk,
+  type DurumRenkAyar,
+  type GrupRenkAyar,
+} from './constants';
 import { haftaAralik, haftaKaydir } from './lib/week';
 import * as repo from './lib/repo';
 import { otomatikDoldur as motorDoldur } from './lib/otomatik';
@@ -56,6 +62,7 @@ interface State {
     kaynakSube?: SubeKod,
   ) => Promise<void>;
   kaydetDurumRenkAyar: (map: DurumRenkAyar) => Promise<void>;
+  kaydetGrupRenkAyar: (map: GrupRenkAyar) => Promise<void>;
 }
 
 let unsubPersonel: Unsubscribe | null = null;
@@ -190,14 +197,13 @@ export const useStore = create<State>((set, get) => {
         aktifSube,
       });
       aboneOl();
-      // Durum renklerini yükle (genel ayar)
+      // Renk ayarlarını yükle (durum + grup, genel ayar)
       ensureAuth()
-        .then(() => repo.getDurumRenk())
-        .then((map) => {
-          if (map) {
-            setTumDurumRenk(map);
-            set({ renkNesil: get().renkNesil + 1 });
-          }
+        .then(() => Promise.all([repo.getDurumRenk(), repo.getGrupRenk()]))
+        .then(([d, g]) => {
+          if (d) setTumDurumRenk(d);
+          if (g) setTumGrupRenk(g);
+          if (d || g) set({ renkNesil: get().renkNesil + 1 });
         })
         .catch(() => {});
     },
@@ -330,6 +336,11 @@ export const useStore = create<State>((set, get) => {
       setTumDurumRenk(map);
       set({ renkNesil: get().renkNesil + 1 });
       await repo.kaydetDurumRenk(map);
+    },
+    kaydetGrupRenkAyar: async (map) => {
+      setTumGrupRenk(map);
+      set({ renkNesil: get().renkNesil + 1 });
+      await repo.kaydetGrupRenk(map);
     },
   };
 });

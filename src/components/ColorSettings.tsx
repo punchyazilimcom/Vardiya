@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useStore } from '../store';
-import { DURUM_AD, durumRenkAktif } from '../constants';
-import type { Durum } from '../types';
+import { DURUM_AD, durumRenkAktif, GRUP_AD, grupRenkAktif } from '../constants';
+import type { Durum, Grup } from '../types';
 
 interface Props {
   onKapat: () => void;
 }
 
 const DUZENLENEBILIR: Durum[] = ['izinli', 'senelik', 'bayram', 'full', 'hk'];
+const GRUPLAR: Grup[] = ['acilis', 'araci', 'kapanis'];
 
 // Zemin parlaklığına göre okunur metin rengi
 function metinRengi(bg: string): string {
@@ -24,21 +25,29 @@ function metinRengi(bg: string): string {
 
 export default function ColorSettings({ onKapat }: Props) {
   const kaydetDurumRenkAyar = useStore((s) => s.kaydetDurumRenkAyar);
+  const kaydetGrupRenkAyar = useStore((s) => s.kaydetGrupRenkAyar);
   const [taslak, setTaslak] = useState<Record<string, string>>(() => {
     const o: Record<string, string> = {};
     DUZENLENEBILIR.forEach((d) => {
       o[d] = durumRenkAktif[d].bg === 'transparent' ? '#1c1c1c' : durumRenkAktif[d].bg;
+    });
+    GRUPLAR.forEach((g) => {
+      o['grup_' + g] = grupRenkAktif[g].bg;
     });
     return o;
   });
   const [kaydedildi, setKaydedildi] = useState(false);
 
   async function kaydet() {
-    const map: Record<string, { bg: string; fg: string }> = {};
+    const dmap: Record<string, { bg: string; fg: string }> = {};
     DUZENLENEBILIR.forEach((d) => {
-      map[d] = { bg: taslak[d], fg: metinRengi(taslak[d]) };
+      dmap[d] = { bg: taslak[d], fg: metinRengi(taslak[d]) };
     });
-    await kaydetDurumRenkAyar(map);
+    const gmap: Record<string, { bg: string }> = {};
+    GRUPLAR.forEach((g) => {
+      gmap[g] = { bg: taslak['grup_' + g] };
+    });
+    await Promise.all([kaydetDurumRenkAyar(dmap), kaydetGrupRenkAyar(gmap)]);
     setKaydedildi(true);
     setTimeout(() => setKaydedildi(false), 1600);
   }
@@ -57,7 +66,32 @@ export default function ColorSettings({ onKapat }: Props) {
           otomatik ayarlanır. Değişiklik tüm cihazlara yansır.
         </p>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 14 }}>
+        <div style={s.blokBaslik}>VARDİYA GRUPLARI</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 8 }}>
+          {GRUPLAR.map((g) => {
+            const k = 'grup_' + g;
+            return (
+              <div key={g} style={s.satir}>
+                <span style={{ ...s.onizleme, background: taslak[k], color: metinRengi(taslak[k]) }}>
+                  {GRUP_AD[g]}
+                </span>
+                <input
+                  type="color"
+                  value={taslak[k]}
+                  onChange={(e) => setTaslak({ ...taslak, [k]: e.target.value })}
+                  style={s.renkGiris}
+                  aria-label={`${GRUP_AD[g]} rengi`}
+                />
+                <span className="mono" style={{ color: '#777', fontSize: 12, width: 72 }}>
+                  {taslak[k]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ ...s.blokBaslik, marginTop: 18 }}>DURUMLAR</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginTop: 8 }}>
           {DUZENLENEBILIR.map((d) => (
             <div key={d} style={s.satir}>
               <span
@@ -92,6 +126,14 @@ export default function ColorSettings({ onKapat }: Props) {
 }
 
 const s: Record<string, React.CSSProperties> = {
+  blokBaslik: {
+    fontSize: 11,
+    fontWeight: 800,
+    letterSpacing: '0.12em',
+    color: '#F4DF16',
+    fontFamily: 'Bricolage Grotesque, sans-serif',
+    marginTop: 14,
+  },
   satir: {
     display: 'flex',
     alignItems: 'center',

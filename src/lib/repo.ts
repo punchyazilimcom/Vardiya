@@ -16,7 +16,7 @@ import type {
   SubeOnayar,
   Hafta,
 } from '../types';
-import type { DurumRenkAyar } from '../constants';
+import type { DurumRenkAyar, GrupRenkAyar } from '../constants';
 import { GENEL_PRESET, BAHCELIEVLER_OVERRIDE } from '../constants';
 
 // ---- Doc/Collection referansları (hepsi `vardiya/` ad alanı altında) ----
@@ -146,6 +146,17 @@ export async function getDurumRenk(): Promise<DurumRenkAyar | null> {
 
 export async function kaydetDurumRenk(map: DurumRenkAyar): Promise<void> {
   await setDoc(durumRenkDoc(), map);
+}
+
+const grupRenkDoc = () => doc(db, NS, 'ayarlar', 'global', 'grupRenk');
+
+export async function getGrupRenk(): Promise<GrupRenkAyar | null> {
+  const snap = await getDoc(grupRenkDoc());
+  return snap.exists() ? (snap.data() as GrupRenkAyar) : null;
+}
+
+export async function kaydetGrupRenk(map: GrupRenkAyar): Promise<void> {
+  await setDoc(grupRenkDoc(), map);
 }
 
 // ---- Tüm personel (tüm şubeler) ----

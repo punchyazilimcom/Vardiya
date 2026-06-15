@@ -104,6 +104,36 @@ export function setTumDurumRenk(map: DurumRenkAyar) {
   });
 }
 
+// Çalışma zamanı GRUP renkleri (Açılış/Aracı/Kapanış) — "Renk Ayarları"ndan.
+export type GrupRenkAyar = Partial<Record<Grup, { bg: string }>>;
+
+export const grupRenkAktif: Record<
+  Grup,
+  { bg: string; border: string; fg: string; pdf: [number, number, number] }
+> = JSON.parse(JSON.stringify(GRUP_RENK));
+
+function blend(hex: string, hedef: number, t: number): number[] {
+  const [r, g, b] = hexToRgb(hex);
+  return [r, g, b].map((c) => Math.round(c + (hedef - c) * t));
+}
+
+export function setTumGrupRenk(map: GrupRenkAyar) {
+  (Object.keys(map) as Grup[]).forEach((gr) => {
+    const v = map[gr];
+    if (!v) return;
+    const [r, g, b] = hexToRgb(v.bg);
+    const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    const [br, bg2, bb] = blend(v.bg, 255, 0.35); // kenar: açık ton
+    const [pr, pg, pb] = blend(v.bg, 255, 0.82); // pdf: çok açık ton
+    grupRenkAktif[gr] = {
+      bg: v.bg,
+      border: `rgb(${br},${bg2},${bb})`,
+      fg: lum > 0.55 ? '#141414' : '#f2f2f2',
+      pdf: [pr, pg, pb],
+    };
+  });
+}
+
 // Başka şube hücresi için çerçeve rengi (farklı çerçeve)
 export const BASKA_SUBE_RENK = {
   bg: '#241a08',
@@ -152,4 +182,4 @@ export const MARKA = {
 };
 
 // Build/sürüm damgası — hangi yapının yüklendiğini ekranda görmek için.
-export const SURUM = 'b10-1957';
+export const SURUM = 'b11-0331';

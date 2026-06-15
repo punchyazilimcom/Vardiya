@@ -1,6 +1,6 @@
 import type { Hucre, Rol, SubeOnayar } from '../types';
 import {
-  GRUP_RENK,
+  grupRenkAktif as GRUP_RENK,
   GRUP_AD,
   DURUM_AD,
   durumRenkAktif as DURUM_RENK,

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { Hucre, Grup, Durum, SubeKod, Rol, SubeOnayar } from '../types';
 import {
   GRUP_AD,
-  GRUP_RENK,
+  grupRenkAktif as GRUP_RENK,
   DURUM_AD,
   durumRenkAktif as DURUM_RENK,
   SUBELER,
